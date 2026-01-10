@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Wise AI Assistant Chat</title>
+<title>Wise Assistant AI Chat</title>
 <style>
-  /* ==== Soft‑teal colour palette ==== */
   :root{
     --primary:#00897B;
     --primary-dark:#00695C;
@@ -12,7 +11,6 @@
     --bg-prompt:#f1fbfa;
     --bg-disclaimer:#fafafa;
   }
-
   body{
     font-family:Arial,Helvetica,sans-serif;
     max-width:800px;
@@ -54,44 +52,6 @@
     cursor:pointer;
   }
   .prompt .copy-btn:hover{background:var(--primary-dark);}
-
-  /* ==== Chat UI ==== */
-  #chatContainer{
-    background:#fff;
-    border:1px solid #ddd;
-    border-radius:5px;
-    padding:1rem;
-    margin:1.5rem 0;
-  }
-  #messages{
-    min-height:120px;
-    margin-bottom:.5rem;
-    overflow-y:auto;
-    font-size:.95rem;
-    color:#444;
-    padding:.5rem;
-    background:#f7f9fc;
-    border-radius:4px;
-  }
-  #userInput{
-    width:100%;
-    padding:.5rem;
-    font-size:1rem;
-    border:1px solid #bbb;
-    border-radius:4px;
-    resize:vertical;
-  }
-  #sendBtn{
-    margin-top:.5rem;
-    background:var(--primary);
-    color:#fff;
-    border:none;
-    border-radius:4px;
-    padding:.5rem 1rem;
-    font-size:1rem;
-    cursor:pointer;
-  }
-  #sendBtn:hover{background:var(--primary-dark);}
 
   .chat-btn{
     display:block;
@@ -137,7 +97,7 @@
   <strong>How to use:</strong>
   <ol>
     <li>Pick the prompt that matches the kind of guidance you need and click **Copy**.</li>
-    <li>Paste the copied prompt into the chat window below and press **Enter** or **Send**.</li>
+    <li>Paste the copied prompt into the chat window you’ll open in the next step.</li>
     <li>Describe your situation, decision, or problem and send it.</li>
     <li>The AI will respond calmly, logically, and thoughtfully.</li>
     <li>Remember the answer is guidance only; verify with trusted sources before acting.</li>
@@ -168,23 +128,17 @@ You are a thoughtful mediator. The user describes a personal or professional con
 You are a reflective personal‑growth guide. When the user shares a goal or habit they want to develop, ask clarifying questions (if needed), then outline a simple, logical plan with 2‑3 actionable steps. Keep the language encouraging yet rational, and include a short disclaimer that the advice is for guidance only.
 </div>
 
-<!-- ==== Chat UI (powered by server‑side /chat endpoint) ==== -->
-<section id="chatContainer">
-  <div id="messages"><em>(Chat messages will appear here after you use a real back‑end.)</em></div>
-  <textarea id="userInput" placeholder="Enter your question or description here…" rows="2"></textarea>
-  <button id="sendBtn">Send</button>
-</section>
-
-<a href="https://huggingface.co/chat/" target="_blank" class="chat-btn">Free Chat (Hugging Face)</a>
+<!-- Single button that opens OpenAI’s chat UI (or any URL you prefer) -->
+<a href="https://chat.openai.com/" target="_blank" class="chat-btn">OpenAI Chat</a>
 
 <footer>
-  © 2026 Fluxpuls – Powered by Hugging Face.
+  © 2026 Fluxpuls – Wise AI Assitant Powered by OpenAI.
   <div class="disclaimer"><strong>Disclaimer:</strong> The assistant provides general guidance only. It is not a substitute for professional advice. Always verify with trusted sources before acting.</div>
   This page is for educational/demo purposes only.
 </footer>
 
 <script>
-/* ---------- COPY‑PROMPT HELPERS (client‑side only) ---------- */
+/* ---------- COPY‑PROMPT HELPERS (unchanged) ---------- */
 async function copyPrompt(id){
   const container=document.getElementById(id);
   const btn=container.querySelector('.copy-btn');
@@ -219,55 +173,6 @@ function fallbackCopy(txt,btn){
   }
   document.body.removeChild(ta);
 }
-
-/* ---------- SIMPLE CHAT LOGIC (no API key in the browser) ---------- */
-async function sendMessage(){
-  const input=document.getElementById('userInput');
-  const userText=input.value.trim();
-  if(!userText) return;
-
-  // show user message
-  appendMessage('You', userText);
-  input.value=''; input.disabled=true;
-  document.getElementById('sendBtn').disabled=true;
-
-  try{
-    const resp = await fetch('/chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({message: userText})
-    });
-    if(!resp.ok){
-      const err = await resp.text();
-      throw new Error(`Server error ${resp.status}: ${err}`);
-    }
-    const data = await resp.json();
-    const reply = data.reply ?? '[no reply]';
-    appendMessage('Assistant', reply);
-  }catch(e){
-    console.error(e);
-    appendMessage('Error', e.message);
-  }finally{
-    input.disabled=false;
-    document.getElementById('sendBtn').disabled=false;
-    input.focus();
-  }
-}
-function appendMessage(role, text){
-  const el=document.createElement('div');
-  el.style.marginBottom='0.6rem';
-  el.innerHTML=`<strong>${role}:</strong> ${text}`;
-  document.getElementById('messages').appendChild(el);
-  const msgs=document.getElementById('messages');
-  msgs.scrollTop = msgs.scrollHeight;
-}
-document.getElementById('sendBtn').addEventListener('click', sendMessage);
-document.getElementById('userInput').addEventListener('keydown', ev=>{
-  if(ev.key==='Enter' && !ev.shiftKey){
-    ev.preventDefault();
-    sendMessage();
-  }
-});
 </script>
 </body>
 </html>
